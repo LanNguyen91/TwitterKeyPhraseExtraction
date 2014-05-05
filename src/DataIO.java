@@ -44,6 +44,24 @@ public class DataIO {
 		return statusList;
 	}
 	
+	/**
+	 * Retrieves tweets from a specified user
+	 * @param user - Username of the profile you want to retrieve from
+	 * @param amount - Number of tweets that you want to fetch
+	 * @return List of tweets
+	 */
+	public List<Status> getTweets(String user, int amount) {
+		try {
+		    statusList = twitter.getUserTimeline(user, new Paging(1, amount));
+		}
+		catch (TwitterException e) {
+			System.out.println("Twitter could not download tweets for user: \"" + user + "\"");
+			e.printStackTrace();
+		}
+		
+		return statusList;
+	}
+	
 	//print out the numberOfTweets that are downloaded
 	public void print(){
 		for(Status s : statusList)

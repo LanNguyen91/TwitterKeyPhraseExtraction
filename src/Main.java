@@ -21,6 +21,10 @@ public class Main {
 	
 	public static void main(String [] agrs)	
 	{
+		int tweetCount;
+		String userName;
+		Scanner sc = new Scanner(System.in);
+		
 		ConfigurationBuilder cb = new ConfigurationBuilder();
 	    cb.setDebugEnabled(true)
 	            .setOAuthConsumerKey(CONSUMER_KEY)
@@ -29,9 +33,20 @@ public class Main {
 	            .setOAuthAccessTokenSecret(ACCESS_SECRET);
 
 	    DataIO io = new DataIO(cb);
+	    
+	    System.out.print("Enter UserName: ");
+	    userName = sc.nextLine();
+	    
+	    System.out.print("Enter the number of Tweets retrieved: ");
+	    tweetCount = sc.nextInt();
+	    
+	    io.getTweets(userName, tweetCount);
+	    
 	    // get latest 5 tweets 
-	    io.getTweets(5);
+	    //io.getTweets(5);
 	    System.out.println("==================Sample Output=====================");
 	    io.print();
+	    
+	    sc.close();
 	}
 }
