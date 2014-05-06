@@ -4,6 +4,8 @@ import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 import twitter4j.Paging;
+import twitter4j.Query;
+import twitter4j.QueryResult;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 
@@ -55,10 +57,37 @@ public class DataIO {
 		    statusList = twitter.getUserTimeline(user, new Paging(1, amount));
 		}
 		catch (TwitterException e) {
-			System.out.println("Twitter could not download tweets for user: \"" + user + "\"");
+			System.err.println("Twitter could not download tweets for user: \"" + user + "\"");
 			e.printStackTrace();
 		}
 		
+		return statusList;
+	}
+
+	/**
+	 * Given a specific search term, such as a hastag or phrase
+	 * 
+	 * For more information on search strings and phrases check this page:
+	 *     https://dev.twitter.com/docs/using-search
+	 * 
+	 * @param search - Basically a string search term used to find tweets
+	 * @param amount - Number of Tweets you want to fetch from the search
+	 * @return
+	 */
+	public List<Status> getTweetsBySearch(String search, int amount) {
+		try {
+			Query query = new Query(search);
+            QueryResult result;
+            
+            query.setCount(amount);
+            
+            result = twitter.search(query);
+            statusList = result.getTweets();
+		}
+		catch (TwitterException e) {
+			System.err.println("Twitter could not download tweets for search: \"" + search + "\"");
+			e.printStackTrace();
+		}
 		return statusList;
 	}
 	
@@ -67,8 +96,15 @@ public class DataIO {
 		for(Status s : statusList)
 		{
 			System.out.println();
-            System.out.println(s.getUser().getName() + ":" +
+            System.out.println("@" + s.getUser().getScreenName() + ": " +
                                s.getText());
 		}
+	}
+	
+	/**
+	 * Simply prints the number of tweets that have currently been retrieved
+	 */
+	public void printTweetCount() {
+		System.out.println("Tweet(s): " + statusList.size());
 	}
 }

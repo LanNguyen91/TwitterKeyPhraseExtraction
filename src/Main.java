@@ -22,7 +22,7 @@ public class Main {
 	public static void main(String [] agrs)	
 	{
 		int tweetCount;
-		String userName;
+		String searchTerm;
 		Scanner sc = new Scanner(System.in);
 		
 		ConfigurationBuilder cb = new ConfigurationBuilder();
@@ -34,13 +34,15 @@ public class Main {
 
 	    DataIO io = new DataIO(cb);
 	    
-	    System.out.print("Enter UserName: ");
-	    userName = sc.nextLine();
+	    System.out.print("Enter Search Term: ");
+	    searchTerm = sc.nextLine();
 	    
 	    System.out.print("Enter the number of Tweets retrieved: ");
 	    tweetCount = sc.nextInt();
 	    
-	    io.getTweets(userName, tweetCount);
+	    //io.getTweets(searchTerm, tweetCount);
+	    io.getTweetsBySearch(searchTerm, tweetCount);
+	    io.printTweetCount();
 	    
 	    // get latest 5 tweets 
 	    //io.getTweets(5);
