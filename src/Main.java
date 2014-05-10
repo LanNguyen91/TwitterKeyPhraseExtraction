@@ -21,8 +21,6 @@ public class Main {
 	
 	public static void main(String [] agrs)	
 	{
-		int tweetCount;
-		String searchTerm;
 		Scanner sc = new Scanner(System.in);
 		
 		ConfigurationBuilder cb = new ConfigurationBuilder();
@@ -33,16 +31,13 @@ public class Main {
 	            .setOAuthAccessTokenSecret(ACCESS_SECRET);
 
 	    DataIO io = new DataIO(cb);
+
+	    // Grab 10 Tweets from Google and save them
+	    io.getTweets("Google", 10);
+	    io.saveCurrentTweets("GoogleTweets.sav");
 	    
-	    System.out.print("Enter Search Term: ");
-	    searchTerm = sc.nextLine();
-	    
-	    System.out.print("Enter the number of Tweets retrieved: ");
-	    tweetCount = sc.nextInt();
-	    
-	    //io.getTweets(searchTerm, tweetCount);
-	    io.getTweetsBySearch(searchTerm, tweetCount);
-	    io.printTweetCount();
+	    // Load the Tweets we have saved
+	    //io.loadSavedTweets("GoogleTweets.sav");
 	    
 	    // get latest 5 tweets 
 	    //io.getTweets(5);

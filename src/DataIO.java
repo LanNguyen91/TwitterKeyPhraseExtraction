@@ -1,3 +1,10 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 
 import twitter4j.Twitter;
@@ -20,6 +27,15 @@ public class DataIO {
 	private TwitterFactory twitterFactory;
     private Twitter twitter;
     private List<Status> statusList;
+    
+    public static String dataDir = "data/";
+    
+    /**
+     * Temporary default constructor used to test the tweet saving system
+     */
+    /**public DataIO() {
+        // The constructor... IT DOES NOTHING!
+    }*/
     
     //constructor will create a DataIO with given configuration
     //configuration that passes in contained user name, password of twitter developer
@@ -57,7 +73,8 @@ public class DataIO {
 		    statusList = twitter.getUserTimeline(user, new Paging(1, amount));
 		}
 		catch (TwitterException e) {
-			System.err.println("Twitter could not download tweets for user: \"" + user + "\"");
+			System.err.println("Twitter could not download tweets for user: \""
+		        + user + "\"");
 			e.printStackTrace();
 		}
 		
@@ -65,7 +82,8 @@ public class DataIO {
 	}
 
 	/**
-	 * Given a specific search term, such as a hastag or phrase
+	 * Given a specific search term, such as a hastag or phrase, return Tweets
+	 * with the given phrase or patterns
 	 * 
 	 * For more information on search strings and phrases check this page:
 	 *     https://dev.twitter.com/docs/using-search
@@ -85,10 +103,85 @@ public class DataIO {
             statusList = result.getTweets();
 		}
 		catch (TwitterException e) {
-			System.err.println("Twitter could not download tweets for search: \"" + search + "\"");
+			System.err.println("Twitter failed to download tweets for search: \""
+		        + search + "\"");
 			e.printStackTrace();
 		}
 		return statusList;
+	}
+	
+	/**
+	 * Saves the current list of Tweets (statusList) to a file
+	 * 
+	 * @param fileName - Name of the file to save the Tweets to
+	 */
+	public void saveCurrentTweets(String fileName) {
+	    DataIO.saveTweets(statusList, fileName);
+	}
+	
+	/**
+	 * Loads tweets from a specified file and sets it to the statusList
+	 * 
+	 * @param fileName - Name of the file to load data from
+	 */
+	public void loadSavedTweets(String fileName) {
+	    statusList = DataIO.loadTweets(fileName);
+	}
+	
+	/**
+	 * Saves the given list of Tweets to a file which can then be loaded and
+	 * read by another object in the program
+	 * 
+	 * @param fileName - Name of the file to save the Tweets to
+	 */
+	public static void saveTweets(List<Status> tweetsList, String fileName) {
+	    // Ensure we always have the data folder to write files to
+	    new File(dataDir).mkdir();
+	    
+	    try {
+            FileOutputStream fout = new FileOutputStream(dataDir + fileName);
+	        ObjectOutputStream out = new ObjectOutputStream(fout);
+            out.writeObject(tweetsList);
+            out.close();
+        } 
+        catch (IOException e) {
+            System.err.println("ERROR: Problem occured while saving file");
+            e.printStackTrace();
+        }
+	    
+	    
+	}
+	
+	/**
+	 * Loads a list of Tweets saved in a specified file
+	 * 
+	 * @param fileName - Name of the file to load the Tweets from
+	 * @return List of tweets to load from a file
+	 */
+	public static List<Status> loadTweets(String fileName) {
+	    try {
+            FileInputStream in = new FileInputStream(dataDir + fileName);
+            ObjectInputStream objIn = new ObjectInputStream(in);
+            List<Status> savedStatusList = (List<Status>)objIn.readObject();
+            
+            objIn.close();
+            
+            return savedStatusList;
+        }
+	    catch (FileNotFoundException e) {
+	        System.err.println("ERROR: File not found");
+	        return null;
+	    }
+        catch (ClassNotFoundException e) {
+            System.err.println("ERROR: Failed to find the class of the " +
+                "object serialized in the file file");
+            return null;
+        }
+	    catch (IOException e) {
+            System.err.println("ERROR: Problem occured while reading file");
+            e.printStackTrace();
+            return null;
+        }
 	}
 	
 	//print out the numberOfTweets that are downloaded
