@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="/home/lan/Desktop/TwitterKeyPhraseExtraction/TwitterKeyPhraseExtraction/lib/twitter4j-core-4.0.2-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/home/lan/Desktop/TwitterKeyPhraseExtraction/TwitterKeyPhraseExtraction/lib/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="/home/lan/Desktop/TwitterKeyPhraseExtraction/TwitterKeyPhraseExtraction/lib/weka.jar"/>
+	<classpathentry kind="lib" path="/home/lan/Desktop/TwitterKeyPhraseExtraction/TwitterKeyPhraseExtraction/lib/snowball.jar"/>
+	<classpathentry kind="lib" path="/home/lan/Desktop/TwitterKeyPhraseExtraction/TwitterKeyPhraseExtraction/lib/kea-5.0.jar"/>
+	<classpathentry kind="lib" path="/home/lan/Desktop/TwitterKeyPhraseExtraction/TwitterKeyPhraseExtraction/lib/jena.jar"/>
+	<classpathentry kind="lib" path="/home/lan/Desktop/TwitterKeyPhraseExtraction/TwitterKeyPhraseExtraction/lib/iri.jar"/>
+	<classpathentry kind="lib" path="/home/lan/Desktop/TwitterKeyPhraseExtraction/TwitterKeyPhraseExtraction/lib/icu4j_3_4.jar"/>
+	<classpathentry kind="lib" path="/home/lan/Desktop/TwitterKeyPhraseExtraction/TwitterKeyPhraseExtraction/lib/commons-logging.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
