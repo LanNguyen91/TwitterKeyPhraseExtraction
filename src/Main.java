@@ -1,6 +1,6 @@
 import java.util.*;
-import twitter4j.conf.ConfigurationBuilder;
 
+import twitter4j.conf.ConfigurationBuilder;
 
 //////////////////////////////////////////////////////////////
 //	Lan Nguyen, Gordon Cheng, Alex							//
@@ -31,13 +31,16 @@ public class Main {
 	            .setOAuthAccessTokenSecret(ACCESS_SECRET);
 
 	    DataIO io = new DataIO(cb);
+	    
+	    // Query the Tweets made in Los Angeles within 20 miles
+	    io.getTweetsByLocation(DataIO.LA_LAT, DataIO.LA_LON, 20, DataIO.MILES);
 
 	    // Grab 10 Tweets from Google and save them
-	    io.getTweets("Google", 10);
-	    io.saveCurrentTweets("GoogleTweets.sav");
+	    //io.getTweets("Yahoo", 10);
+	    //io.saveCurrentTweets("YahooTweets.sav");
 	    
 	    // Load the Tweets we have saved
-	    //io.loadSavedTweets("GoogleTweets.sav");
+	    //io.loadSavedTweets("YahooTweets.sav");
 	    
 	    // get latest 5 tweets 
 	    //io.getTweets(5);

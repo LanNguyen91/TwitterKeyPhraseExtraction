@@ -10,6 +10,7 @@ import java.util.List;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
+import twitter4j.GeoLocation;
 import twitter4j.Paging;
 import twitter4j.Query;
 import twitter4j.QueryResult;
@@ -28,7 +29,23 @@ public class DataIO {
     private Twitter twitter;
     private List<Status> statusList;
     
-    public static String dataDir = "data/";
+    public static final String DATADIR = "data/";
+    
+    // Coordinates for Los Angeles
+    public static final double LA_LAT = 34.052;
+    public static final double LA_LON = -118.243;
+    
+    // Coordinates for Las Vegas
+    public static final double LV_LAT = 36.169;
+    public static final double LV_LON = -115.139;
+    
+    // Coordinates for Guangzhou, China
+    public static final double GZ_LAT = 23.129;
+    public static final double GZ_LON = 113.264;
+    
+    // Two forms of measuring distance
+    public static final String MILES = "mi";
+    public static final String KILOMETERS = "km";
     
     /**
      * Temporary default constructor used to test the tweet saving system
@@ -90,7 +107,7 @@ public class DataIO {
 	 * 
 	 * @param search - Basically a string search term used to find tweets
 	 * @param amount - Number of Tweets you want to fetch from the search
-	 * @return
+	 * @return List of Tweets
 	 */
 	public List<Status> getTweetsBySearch(String search, int amount) {
 		try {
@@ -108,6 +125,32 @@ public class DataIO {
 			e.printStackTrace();
 		}
 		return statusList;
+	}
+	
+	/**
+	 * Returns the tweets made in a certain radius around a certain location
+	 * 
+	 * @param lat - Latitude in degrees of the location
+	 * @param lon - Longitude in degrees of the location
+	 * @param radius - Radius around that location to fetch the tweets
+	 * @param units - Distance units that the radius is measured in
+	 * @return List of Tweets
+	 */
+	public List<Status> getTweetsByLocation(double lat, double lon,
+	                                        double radius, String units) {
+	    Query query = new Query();
+	    GeoLocation geoLoc = new GeoLocation(lat, lon);
+	    query.geoCode(geoLoc, radius, units);
+
+	    try {
+            QueryResult result = twitter.search(query);
+            statusList = result.getTweets();
+            return statusList;
+        } catch (TwitterException e) {
+            System.err.println("");
+            e.printStackTrace();
+        }
+	    return null;
 	}
 	
 	/**
@@ -136,10 +179,10 @@ public class DataIO {
 	 */
 	public static void saveTweets(List<Status> tweetsList, String fileName) {
 	    // Ensure we always have the data folder to write files to
-	    new File(dataDir).mkdir();
+	    new File(DATADIR).mkdir();
 	    
 	    try {
-            FileOutputStream fout = new FileOutputStream(dataDir + fileName);
+            FileOutputStream fout = new FileOutputStream(DATADIR + fileName);
 	        ObjectOutputStream out = new ObjectOutputStream(fout);
             out.writeObject(tweetsList);
             out.close();
@@ -160,7 +203,7 @@ public class DataIO {
 	 */
 	public static List<Status> loadTweets(String fileName) {
 	    try {
-            FileInputStream in = new FileInputStream(dataDir + fileName);
+            FileInputStream in = new FileInputStream(DATADIR + fileName);
             ObjectInputStream objIn = new ObjectInputStream(in);
             List<Status> savedStatusList = (List<Status>)objIn.readObject();
             
