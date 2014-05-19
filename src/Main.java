@@ -1,3 +1,4 @@
+import java.text.NumberFormat;
 import java.util.*;
 
 import twitter4j.conf.ConfigurationBuilder;
@@ -21,32 +22,39 @@ public class Main {
 	
 	public static void main(String [] agrs)	
 	{
-		Scanner sc = new Scanner(System.in);
-		
 		ConfigurationBuilder cb = new ConfigurationBuilder();
 	    cb.setDebugEnabled(true)
 	            .setOAuthConsumerKey(CONSUMER_KEY)
 	            .setOAuthConsumerSecret(CONSUMER_SECRET)
 	            .setOAuthAccessToken(ACCESS_KEY)
 	            .setOAuthAccessTokenSecret(ACCESS_SECRET);
+	    
+	    /**DataIO dio = new DataIO(cb);
+	    
+	    dio.getTweets("Google", 50);
+	    dio.saveCurrentTweets("GoogleTweets.sav");
+	    dio.print();*/
+	    
+	    DataProcessor dp = new DataProcessor("YOLOTweets.sav");
+	    
+	    dp.buildUnigramAndIndexMap();
+	    //dp.printUnigram();
+	    
+	    System.out.println("Most common word: " + dp.getMostCommonWord());
+	}
+	
+	public static void benchmark() {
+	    Runtime runtime = Runtime.getRuntime();
+	    NumberFormat format = NumberFormat.getInstance();
+	    
+	    long maxMemory = runtime.maxMemory();
+	    long allocatedMemory = runtime.totalMemory();
+	    long freeMemory = runtime.freeMemory();
 
-	    DataIO io = new DataIO(cb);
-	    
-	    // Query the Tweets made in Los Angeles within 20 miles
-	    io.getTweetsByLocation(DataIO.LA_LAT, DataIO.LA_LON, 20, DataIO.MILES);
-
-	    // Grab 10 Tweets from Google and save them
-	    //io.getTweets("Yahoo", 10);
-	    //io.saveCurrentTweets("YahooTweets.sav");
-	    
-	    // Load the Tweets we have saved
-	    //io.loadSavedTweets("YahooTweets.sav");
-	    
-	    // get latest 5 tweets 
-	    //io.getTweets(5);
-	    System.out.println("==================Sample Output=====================");
-	    io.print();
-	    
-	    sc.close();
+	    System.out.println("");
+	    System.out.println("free memory: " + format.format(freeMemory / 1024) + " KB");
+	    System.out.println("allocated memory: " + format.format(allocatedMemory / 1024) + " KB");
+	    System.out.println("max memory: " + format.format(maxMemory / 1024) + " KB");
+	    System.out.println("total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024) + " KB");
 	}
 }

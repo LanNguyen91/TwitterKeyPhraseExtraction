@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import twitter4j.Twitter;
@@ -102,6 +103,9 @@ public class DataIO {
 	 * Given a specific search term, such as a hastag or phrase, return Tweets
 	 * with the given phrase or patterns
 	 * 
+	 * Update 5/18/2014
+	 *     Updated it so we can fetch more than 100 tweets at a time
+	 * 
 	 * For more information on search strings and phrases check this page:
 	 *     https://dev.twitter.com/docs/using-search
 	 * 
@@ -110,20 +114,41 @@ public class DataIO {
 	 * @return List of Tweets
 	 */
 	public List<Status> getTweetsBySearch(String search, int amount) {
-		try {
-			Query query = new Query(search);
-            QueryResult result;
-            
-            query.setCount(amount);
-            
-            result = twitter.search(query);
-            statusList = result.getTweets();
-		}
-		catch (TwitterException e) {
-			System.err.println("Twitter failed to download tweets for search: \""
-		        + search + "\"");
-			e.printStackTrace();
-		}
+	    long lastID = Long.MAX_VALUE;
+	    Query query = new Query(search);
+	    statusList = new ArrayList<Status>();
+	    
+	    System.out.println("Fetching Tweets by search term: \"" +
+	        search + "\"");
+	    
+	    while (statusList.size () < amount) {
+	        if (amount - statusList.size() > 100)
+	            query.setCount(100);
+	        else
+	            query.setCount(amount - statusList.size());
+
+	        try {
+	            QueryResult result = twitter.search(query);
+	            statusList.addAll(result.getTweets());
+	            
+	            System.out.println("Currently fetched " + statusList.size() +
+	                " Tweets");
+	            
+	            for (Status t: statusList)
+	                if (t.getId() < lastID)
+	                    lastID = t.getId();
+
+	        }
+	        catch (TwitterException e) {
+	            System.err.println("Failed to download tweets for search: \"" +
+	                search + "\"");
+	            e.printStackTrace();
+	            return statusList;
+	        }
+
+	        query.setMaxId(lastID - 1);
+	    }
+
 		return statusList;
 	}
 	
@@ -134,23 +159,44 @@ public class DataIO {
 	 * @param lon - Longitude in degrees of the location
 	 * @param radius - Radius around that location to fetch the tweets
 	 * @param units - Distance units that the radius is measured in
+	 * @param amount - Number of tweets to fetch from this location
 	 * @return List of Tweets
 	 */
 	public List<Status> getTweetsByLocation(double lat, double lon,
-	                                        double radius, String units) {
+	                                        double radius, int amount,
+	                                        String units) {
+	    long lastID = Long.MAX_VALUE;
 	    Query query = new Query();
+	    statusList = new ArrayList<Status>();
+
 	    GeoLocation geoLoc = new GeoLocation(lat, lon);
 	    query.geoCode(geoLoc, radius, units);
 
-	    try {
-            QueryResult result = twitter.search(query);
-            statusList = result.getTweets();
-            return statusList;
-        } catch (TwitterException e) {
-            System.err.println("");
-            e.printStackTrace();
+	    while (statusList.size () < amount) {
+            if (amount - statusList.size() > 100)
+                query.setCount(100);
+            else
+                query.setCount(amount - statusList.size());
+
+            try {
+                QueryResult result = twitter.search(query);
+                statusList.addAll(result.getTweets());
+                
+                for (Status t: statusList)
+                    if (t.getId() < lastID)
+                        lastID = t.getId();
+
+            }
+            catch (TwitterException e) {
+                System.err.println("Failed to download tweets from this " +
+                    "location");
+                e.printStackTrace();
+            }
+
+            query.setMaxId(lastID - 1);
         }
-	    return null;
+
+        return statusList;
 	}
 	
 	/**
