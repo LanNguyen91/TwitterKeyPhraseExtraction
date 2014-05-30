@@ -5,11 +5,15 @@
  * 
  * @author Gordon Cheng
  */
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,27 +24,18 @@ public class DataProcessor implements Serializable {
 
     private HashMap<String, Integer> unigram, indexMap;
     private List<Status> tweetsList;
+    private List<String> backgroundWordList;
     
     private int[][] bigram;
     
+    public static final String backWordFile = "backgroundwords.txt";
     public static final String wordRegex = "[#@]?[\\w\\d']{3,}";
     
     /**
      * Simply creates a blank Data Processor object
      */
     public DataProcessor() {
-        String match;
-        String testString = "RT @TaylorBalfour: I'm just not gonna sleep for two days #yolo";
-        Matcher matcher = Pattern.compile(wordRegex).matcher(testString);
-        
-        while (matcher.find()) {
-            match = matcher.group();
-            
-            if (match.charAt(0) == '@' || match.charAt(0) == '#')
-                continue;
-            else
-                System.out.println("Found: " + match);
-        }
+    	loadBackgroundWords();
     }
     
     /**
@@ -49,6 +44,7 @@ public class DataProcessor implements Serializable {
      * @param tweetsFile - Name of the file to fetch the tweets from
      */
     public DataProcessor(String tweetsFile) {
+    	loadBackgroundWords();
         tweetsList = DataIO.loadTweets(tweetsFile);
     }
     
@@ -62,42 +58,133 @@ public class DataProcessor implements Serializable {
      * @return TRUE if the word is a valid key phrase word; FALSE otherwise
      */
     public boolean isValidWord(String match) {
-        return (match.charAt(0) != '@' && match.charAt(0) != '#') &&
-                !match.equalsIgnoreCase("rt") &&
-                !match.equalsIgnoreCase("http");
+        return (match.charAt(0) != '@' && match.charAt(0) != '#' &&
+        		!isBackgroundWord(match));
+    }
+    
+    /**
+     * Returns whether or not a certain word is background word and therefore
+     * should be ignored
+     * 
+     * @param word - String of the word to verify
+     * @return TRUE if the word is a background word; FALSE otherwise
+     */
+    public boolean isBackgroundWord(String word) {
+    	if (backgroundWordList == null) {
+    		System.err.println("ERROR: Background word list has not been" +
+    	        "initialized yet");
+    		return true;
+    	}
+    	
+    	return backgroundWordList.contains(word);
     }
     
     /**
      * Returns the most common word used in all the tweets based off the
      * unigram counts
      * 
-     * @return Word most commonly used in the tweet list
+     * @param count - number of most used words
+     * @return List of the most commonly used words
      */
-    public String getMostCommonWord() {
+    public List<String> getMostCommonWord(int count) {
         if (unigram == null) {
             System.err.println("ERROR: Unigram is currently null");
-            return "";
+            return null;
         }
         
+        System.out.println("Fetching most commonly used words...");
+        
         int frequency = 0;
+        int upperLimit = Integer.MAX_VALUE;
         Entry pair;
         String mostCommon = "";
         
-        Iterator it = unigram.entrySet().iterator();
+        List<String> mostCommonWords = new ArrayList<String>();
         
-        while (it.hasNext()) {
-            pair = (Entry)it.next();
-            
-            if ((int)pair.getValue() > frequency) {
-                frequency = (int)pair.getValue();
-                mostCommon = (String)pair.getKey();
-                System.out.println("");
-                System.out.println("New Most Common Frequency: " + frequency);
-                System.out.println("New Most Common: " + mostCommon);
-            }
+        for (int i=0;i<count;i++) {
+        	frequency = 0;
+        	mostCommon = "";
+	        Iterator it = unigram.entrySet().iterator();
+	        
+	        while (it.hasNext()) {
+	            pair = (Entry)it.next();
+	            
+	            if ((int)pair.getValue() > frequency &&
+	            	(int)pair.getValue() < upperLimit) {
+	                frequency = (int)pair.getValue();
+	                mostCommon = (String)pair.getKey();
+	            }
+	        }
+	        
+	        mostCommonWords.add(mostCommon);
+	        upperLimit = frequency;
+	        
+	        System.out.println("Common word: " + mostCommon);
+	        System.out.println("Frequency: " + frequency);
+	        System.out.println();
         }
         
-        return mostCommon;
+        System.out.println("Finished fetching words");
+        
+        return mostCommonWords;
+    }
+    
+    /**
+     * Returns the
+     * 
+     * @param count - the number of key phrases to extract from the Tweets
+     * @return List of keyphrases
+     */
+    public List<String> getKeyPhrases(int count) {	
+    	if (bigram == null) {
+    		System.err.println("Bigram has not yet been initialized");
+    		return null;
+    	}
+    	
+    	List<String> mostCommonlyUsedWords = getMostCommonWord(count);
+    	
+    	int frequency = 0;
+    	
+    	// TODO: Find the most commonly used previous word
+    	for (int i=0;i<bigram[0].length;i++) {
+    		
+    	}
+    	
+    	// TODO: Find the most commonly used next word
+    	for (int i=0;i<count;i++) {
+    		
+    	}
+    	
+    	return null;
+    }
+    
+    /**
+     * Loads a list of background words from a file. These words will be
+     * ignored when building the unigram and bigram
+     */
+    public void loadBackgroundWords() {
+    	Scanner sc;
+    	File file = new File(DataIO.DATADIR + backWordFile);
+    	
+    	System.out.println("Loading background words...");
+    	
+    	try {
+			sc = new Scanner(file);
+		} catch (FileNotFoundException e) {
+			System.out.println("ERROR: " + backWordFile + " not found.");
+			return;
+		}
+    	
+    	if (sc != null) {
+    	    backgroundWordList = new ArrayList<String>();
+    	    
+    	    while (sc.hasNext())
+    	    	backgroundWordList.add(sc.nextLine());
+    	}
+    	
+    	sc.close();
+    	
+    	System.out.println("Finished loading background words");
     }
     
     /**
@@ -110,6 +197,8 @@ public class DataProcessor implements Serializable {
                 "list of Tweets");
             return;
         }
+        
+        System.out.println("Building Unigram and Index Map...");
         
         String tweet, word;
         
@@ -134,6 +223,8 @@ public class DataProcessor implements Serializable {
                 }
             }
         }
+        
+        System.out.println("Unigram and Index map complete");
     }
     
     /**
@@ -151,6 +242,8 @@ public class DataProcessor implements Serializable {
                 "list of Tweets");
             return;
         }
+        
+        System.out.println("Building Bigram...");
         
         String tweet, word;
         String prevWord = "";
@@ -175,6 +268,8 @@ public class DataProcessor implements Serializable {
                 }
             }
         }
+        
+        System.out.println("Bigram Complete");
     }
     
     /**

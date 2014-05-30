@@ -31,16 +31,21 @@ public class Main {
 	    
 	    /**DataIO dio = new DataIO(cb);
 	    
-	    dio.getTweets("Google", 50);
-	    dio.saveCurrentTweets("GoogleTweets.sav");
-	    dio.print();*/
+	    //dio.getTweetsBySearch("#swag", 15000);
+	    //dio.saveCurrentTweets("SwagTweets.sav");
 	    
-	    DataProcessor dp = new DataProcessor("YOLOTweets.sav");
+	    dio.loadSavedTweets("SwagTweets.sav");
+	    dio.print();
+	    dio.printTweetCount();*/
+	    
+	    DataProcessor dp = new DataProcessor("SwagTweets.sav");
 	    
 	    dp.buildUnigramAndIndexMap();
-	    //dp.printUnigram();
+	    //dp.buildBigram();
 	    
-	    System.out.println("Most common word: " + dp.getMostCommonWord());
+	    dp.getMostCommonWord(5);
+	    
+	    benchmark();
 	}
 	
 	public static void benchmark() {
