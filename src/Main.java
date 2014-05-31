@@ -34,16 +34,24 @@ public class Main {
 	    //dio.getTweetsBySearch("#swag", 15000);
 	    //dio.saveCurrentTweets("SwagTweets.sav");
 	    
-	    dio.loadSavedTweets("SwagTweets.sav");
+	    dio.loadSavedTweets("YoloTweets.sav");
 	    dio.print();
 	    dio.printTweetCount();*/
 	    
-	    DataProcessor dp = new DataProcessor("SwagTweets.sav");
+	    /**DataProcessor dp = new DataProcessor("YoloTweets.sav");
 	    
 	    dp.buildUnigramAndIndexMap();
-	    //dp.buildBigram();
+	    dp.buildBigram();
 	    
-	    dp.getMostCommonWord(5);
+	    List<String> keyPhrases = dp.getKeyPhrases(5);
+	    
+	    System.out.println("");
+	    
+	    if (keyPhrases != null)
+    	    for (String s : keyPhrases)
+    	        System.out.println(s);
+	    else
+	        System.out.println("ERROR: Unable to produce list of keyphrases");*/
 	    
 	    benchmark();
 	}
