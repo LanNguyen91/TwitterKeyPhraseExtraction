@@ -119,6 +119,31 @@ public class DataProcessor implements Serializable {
     }
     
     /**
+     * Takes a unigram and returns the most common word
+     * 
+     * @param uni - A HashMap of Strings representing a word or phrase and an
+     *              Integer representing the number occurances
+     * @return - String in the HashMap that occurs the most often
+     */
+    public String getMostCommonString(HashMap<String, Integer> uni) {
+        int frequency = 0;
+        String mostCommon = "";
+        Entry pair;
+        Iterator it = uni.entrySet().iterator();
+        
+        while (it.hasNext()) {
+            pair = (Entry)it.next();
+            
+            if ((int)pair.getValue() > frequency) {
+                frequency = (int)pair.getValue();
+                mostCommon = (String)pair.getKey() + " (" + frequency + ")";
+            }
+        }
+        
+        return mostCommon;
+    }
+    
+    /**
      * Returns the most common word used in all the tweets based off the
      * unigram counts
      * 
@@ -169,12 +194,17 @@ public class DataProcessor implements Serializable {
     }
     
     /**
-     * Returns the key phrases most commonly used
+     * Returns the key phrases most commonly used words that come before and
+     * after the most commonly used words to get key phrases
+     * 
+     * Scrapped, because the as Lan mentioned, this method may match the
+     * previous word and main word with ones from a different sentence creating
+     * a nonsensical phrase
      * 
      * @param count - the number of key phrases to extract from the Tweets
      * @return List of keyphrases
      */
-    public List<String> getKeyPhrases(int count) {
+    /**public List<String> getKeyPhrases(int count) {
         if (indexMap == null) {
             System.err.println("ERROR: Index Map has not yet been " +
                 "initialized");
@@ -234,6 +264,75 @@ public class DataProcessor implements Serializable {
     	System.out.println("Key phrase extraction complete");
     	
     	return keyPhrases;
+    }*/
+    
+    /**
+     * Extract the key phrases by first finding the most commonly used words.
+     * Then we go sentence by sentence to see what kind of context those most
+     * commonly used words are used in.
+     * 
+     * @param count - the number of key phrases to extract from the Tweets
+     * @return List of keyphrases
+     */
+    public List<String> getKeyPhrases(int count) {
+        System.out.println("Extracting keyphrases...");
+        
+        List<String> keyPhrases = new ArrayList<String>();
+        
+        List<String> mostCommonlyUsedWords = getMostCommonWord(count);
+        HashMap<String, Integer> candidateKeyPhrases;
+        
+        int frequency;
+        String tweet, prevWord, curWord, nextWord, phrase, keyPhrase;
+        Entry pair;
+        
+        for (String w : mostCommonlyUsedWords) {
+            
+            // Unigram of phrases that use the most common word
+            candidateKeyPhrases = new HashMap<String, Integer>();
+            
+            // Go through all the Tweets
+            for (Status s : tweetsList) {
+                
+                tweet = s.getText().toLowerCase();
+                Matcher matcher = Pattern.compile(wordRegex).matcher(tweet);
+                
+                prevWord = "";
+                curWord = "";
+                nextWord = "";
+                
+                while (matcher.find()) {
+                    prevWord = curWord;
+                    curWord = nextWord;
+                    nextWord = matcher.group();
+                    
+                    if (curWord.equalsIgnoreCase(w)) {
+                        phrase = w;
+                        
+                        if (prevWord.length() > 0 && isValidWord(prevWord))
+                            phrase = prevWord + " " + phrase;
+                        
+                        if (nextWord.length() > 0 && isValidWord(nextWord))
+                            phrase = phrase + " " + nextWord;
+                        
+                        if (candidateKeyPhrases.containsKey(phrase))
+                            candidateKeyPhrases.put(phrase, candidateKeyPhrases.get(phrase)+1);
+                        else
+                            candidateKeyPhrases.put(phrase, 1);
+                    }
+                }
+            }
+            
+            // Find the most common key phrase
+            keyPhrase = getMostCommonString(candidateKeyPhrases);
+            
+            if (keyPhrase.length() > 0)
+                keyPhrases.add(keyPhrase);
+        }
+        
+        System.out.println("Keyphrase extraction complete");
+        
+        return keyPhrases;
     }
     
     /**
