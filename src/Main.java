@@ -22,30 +22,83 @@ public class Main {
 	
 	public static void main(String [] agrs)	
 	{
-		ConfigurationBuilder cb = new ConfigurationBuilder();
-	    cb.setDebugEnabled(true)
-	            .setOAuthConsumerKey(CONSUMER_KEY)
-	            .setOAuthConsumerSecret(CONSUMER_SECRET)
-	            .setOAuthAccessToken(ACCESS_KEY)
-	            .setOAuthAccessTokenSecret(ACCESS_SECRET);
-	    
-	    /**DataIO dio = new DataIO(cb);
-	    
-	    //dio.getTweetsBySearch("#swag", 15000);
-	    //dio.saveCurrentTweets("SwagTweets.sav");
-	    
-	    dio.loadSavedTweets("SwagTweets.sav");
-	    dio.print();
-	    dio.printTweetCount();*/
-	    
-	    DataProcessor dp = new DataProcessor("SwagTweets.sav");
-	    
-	    dp.buildUnigramAndIndexMap();
-	    //dp.buildBigram();
-	    
-	    dp.getMostCommonWord(5);
+	    //farmTweets("#nissan", "NissanTweets.sav", 15000);
+	    //printTweets("NissanTweets.sav");
+	    extractKeyPhrases("NissanTweets.sav", 30);
 	    
 	    benchmark();
+	}
+	
+	/**
+	 * Prints all the tweets saved in a given file
+	 * 
+	 * @param fileName - Name of the file that contains the Tweets
+	 */
+	public static void printTweets(String fileName) {
+	    ConfigurationBuilder cb = new ConfigurationBuilder();
+        cb.setDebugEnabled(true)
+                .setOAuthConsumerKey(CONSUMER_KEY)
+                .setOAuthConsumerSecret(CONSUMER_SECRET)
+                .setOAuthAccessToken(ACCESS_KEY)
+                .setOAuthAccessTokenSecret(ACCESS_SECRET);
+        
+	    DataIO dio = new DataIO(cb);
+        
+        dio.loadSavedTweets(fileName);
+        dio.print();
+	}
+	
+	/**
+	 * Farms Twitters for Tweets using a given search term. The limit of
+	 * transfer is somewhere at 17980 Tweets, so we download them in 15000
+	 * Tweet batches.
+	 * 
+	 * Note: Due to Twitter rate limits, we can only download about 17980
+	 * Tweets every 15 minutes, so either wait 15 minutes, or be wary of your
+	 * download rate
+	 * 
+	 * For more information on search strings and phrases check this page:
+     *     https://dev.twitter.com/docs/using-search
+	 * 
+	 * @param searchTerm - Term to search for
+	 * @param fileName - Name and extension of the file to save to
+	 */
+	public static void farmTweets(String searchTerm, String fileName,
+	                              int count) {
+	    ConfigurationBuilder cb = new ConfigurationBuilder();
+        cb.setDebugEnabled(true)
+                .setOAuthConsumerKey(CONSUMER_KEY)
+                .setOAuthConsumerSecret(CONSUMER_SECRET)
+                .setOAuthAccessToken(ACCESS_KEY)
+                .setOAuthAccessTokenSecret(ACCESS_SECRET);
+        
+	    DataIO dio = new DataIO(cb);
+        
+        dio.getTweetsBySearch(searchTerm, count);
+        dio.saveCurrentTweets(fileName);
+	}
+	
+	/**
+	 * Reads the Tweets file saved by the DataIO class and analyzes the data
+	 * to extract the key phrases from them.
+	 * 
+	 * @param fileName - Name of the file that contains the Tweets
+	 * @param count - Number of Tweets to fetch from Twitter
+	 */
+	public static void extractKeyPhrases(String fileName, int count) {
+	    DataProcessor dp = new DataProcessor(fileName);
+        
+        dp.buildUnigramAndIndexMap();
+        
+        List<String> keyPhrases = dp.getKeyPhrases(count);
+        
+        System.out.println("");
+        
+        if (keyPhrases != null)
+            for (String s : keyPhrases)
+                System.out.println(s);
+        else
+            System.out.println("ERROR: Unable to produce list of keyphrases");
 	}
 	
 	public static void benchmark() {

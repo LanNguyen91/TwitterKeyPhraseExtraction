@@ -29,7 +29,8 @@ public class DataProcessor implements Serializable {
     private int[][] bigram;
     
     public static final String backWordFile = "backgroundwords.txt";
-    public static final String wordRegex = "[#@]?[\\w\\d']{3,}";
+    public static final String wordRegex = "[#@]?[\\w\\d':/.]{3,}";
+    //public static final String wordRegex = "[#@]?[\\w\\d']{3,}";
     
     /**
      * Simply creates a blank Data Processor object
@@ -59,7 +60,7 @@ public class DataProcessor implements Serializable {
      */
     public boolean isValidWord(String match) {
         return (match.charAt(0) != '@' && match.charAt(0) != '#' &&
-        		!isBackgroundWord(match));
+        		!isBackgroundWord(match) && !isLink(match));
     }
     
     /**
@@ -77,6 +78,69 @@ public class DataProcessor implements Serializable {
     	}
     	
     	return backgroundWordList.contains(word);
+    }
+    
+    /**
+     * Returns whether or not a word is an internet link
+     * 
+     * @param word - String of the word to verify
+     * @return TRUE if the given word is an internet link; FALSE otherwise
+     */
+    public boolean isLink(String word) {
+        return (word.length() < 4) ? false :
+            word.substring(0, 4).equalsIgnoreCase("http");
+    }
+    
+    /**
+     * Since the HashMap does not support bidirectional movement, Key to Value
+     * and Value to Key, this method simply returns the key using a given
+     * value from the indexMap
+     * 
+     * @param index - The index assigned to a word
+     * @return The word that's been assigned to the given index
+     */
+    public String getWordFromIndex(int index) {
+        if (indexMap == null) {
+            System.err.println("ERROR: indexMap is currently null");
+            return "";
+        }
+        
+        Entry pair;
+        Iterator it = indexMap.entrySet().iterator();
+        
+        while (it.hasNext()) {
+            pair = (Entry)it.next();
+            
+            if ((int)pair.getValue() == index)
+                return (String)pair.getKey();
+        }
+
+        return "";
+    }
+    
+    /**
+     * Takes a unigram and returns the most common word
+     * 
+     * @param uni - A HashMap of Strings representing a word or phrase and an
+     *              Integer representing the number occurances
+     * @return - String in the HashMap that occurs the most often
+     */
+    public String getMostCommonString(HashMap<String, Integer> uni) {
+        int frequency = 0;
+        String mostCommon = "";
+        Entry pair;
+        Iterator it = uni.entrySet().iterator();
+        
+        while (it.hasNext()) {
+            pair = (Entry)it.next();
+            
+            if ((int)pair.getValue() > frequency) {
+                frequency = (int)pair.getValue();
+                mostCommon = (String)pair.getKey() + " (" + frequency + ")";
+            }
+        }
+        
+        return mostCommon;
     }
     
     /**
@@ -119,43 +183,156 @@ public class DataProcessor implements Serializable {
 	        mostCommonWords.add(mostCommon);
 	        upperLimit = frequency;
 	        
-	        System.out.println("Common word: " + mostCommon);
-	        System.out.println("Frequency: " + frequency);
-	        System.out.println();
+	        //System.out.println("Common word: " + mostCommon);
+	        //System.out.println("Frequency: " + frequency);
+	        //System.out.println();
         }
         
-        System.out.println("Finished fetching words");
+        System.out.println("Fetched most commonly used words");
         
         return mostCommonWords;
     }
     
     /**
-     * Returns the
+     * Returns the key phrases most commonly used words that come before and
+     * after the most commonly used words to get key phrases
+     * 
+     * Scrapped, because the as Lan mentioned, this method may match the
+     * previous word and main word with ones from a different sentence creating
+     * a nonsensical phrase
      * 
      * @param count - the number of key phrases to extract from the Tweets
      * @return List of keyphrases
      */
-    public List<String> getKeyPhrases(int count) {	
+    /**public List<String> getKeyPhrases(int count) {
+        if (indexMap == null) {
+            System.err.println("ERROR: Index Map has not yet been " +
+                "initialized");
+            return null;
+        }
+        
     	if (bigram == null) {
-    		System.err.println("Bigram has not yet been initialized");
+    		System.err.println("ERROR: Bigram has not yet been initialized");
     		return null;
     	}
     	
+    	System.out.println("Extracting key phrases...");
+    	
+    	int baseWordIndex;
+    	int prevHighest, nextHighest;
+    	int prevIndex, nextIndex;
+    	String keyPhrase = "";
+    	
     	List<String> mostCommonlyUsedWords = getMostCommonWord(count);
+    	List<String> keyPhrases = new ArrayList<String>();
     	
-    	int frequency = 0;
-    	
-    	// TODO: Find the most commonly used previous word
-    	for (int i=0;i<bigram[0].length;i++) {
-    		
+    	for (String s : mostCommonlyUsedWords) {
+    	    baseWordIndex = indexMap.get(s);
+    	    keyPhrase = "";
+    	    
+    	    prevHighest = 0;
+    	    prevIndex = -1;
+    	    
+        	for (int i=0;i<bigram[0].length;i++) {
+        		if (bigram[i][baseWordIndex] > prevHighest) {
+        		    prevHighest = bigram[i][baseWordIndex];
+        		    prevIndex = i;
+        		}
+        	}
+        	
+        	nextHighest = 0;
+        	nextIndex = -1;
+    
+        	for (int i=0;i<bigram[0].length;i++) {
+        	    if (bigram[baseWordIndex][i] > nextHighest) {
+                    prevHighest = bigram[baseWordIndex][i];
+                    nextIndex = i;
+        	    }
+        	}
+        	
+        	if (prevIndex > -1)
+        	    keyPhrase = keyPhrase + getWordFromIndex(prevIndex) + " ";
+        	
+        	keyPhrase = keyPhrase + s;
+        	
+        	if (nextIndex > -1)
+        	    keyPhrase = keyPhrase + " " + getWordFromIndex(nextIndex);
+        	
+        	keyPhrases.add(keyPhrase);
     	}
     	
-    	// TODO: Find the most commonly used next word
-    	for (int i=0;i<count;i++) {
-    		
-    	}
+    	System.out.println("Key phrase extraction complete");
     	
-    	return null;
+    	return keyPhrases;
+    }*/
+    
+    /**
+     * Extract the key phrases by first finding the most commonly used words.
+     * Then we go sentence by sentence to see what kind of context those most
+     * commonly used words are used in.
+     * 
+     * @param count - the number of key phrases to extract from the Tweets
+     * @return List of keyphrases
+     */
+    public List<String> getKeyPhrases(int count) {
+        System.out.println("Extracting keyphrases...");
+        
+        List<String> keyPhrases = new ArrayList<String>();
+        
+        List<String> mostCommonlyUsedWords = getMostCommonWord(count);
+        HashMap<String, Integer> candidateKeyPhrases;
+        
+        int frequency;
+        String tweet, prevWord, curWord, nextWord, phrase, keyPhrase;
+        Entry pair;
+        
+        for (String w : mostCommonlyUsedWords) {
+            
+            // Unigram of phrases that use the most common word
+            candidateKeyPhrases = new HashMap<String, Integer>();
+            
+            // Go through all the Tweets
+            for (Status s : tweetsList) {
+                
+                tweet = s.getText().toLowerCase();
+                Matcher matcher = Pattern.compile(wordRegex).matcher(tweet);
+                
+                prevWord = "";
+                curWord = "";
+                nextWord = "";
+                
+                while (matcher.find()) {
+                    prevWord = curWord;
+                    curWord = nextWord;
+                    nextWord = matcher.group();
+                    
+                    if (curWord.equalsIgnoreCase(w)) {
+                        phrase = w;
+                        
+                        if (prevWord.length() > 0 && isValidWord(prevWord))
+                            phrase = prevWord + " " + phrase;
+                        
+                        if (nextWord.length() > 0 && isValidWord(nextWord))
+                            phrase = phrase + " " + nextWord;
+                        
+                        if (candidateKeyPhrases.containsKey(phrase))
+                            candidateKeyPhrases.put(phrase, candidateKeyPhrases.get(phrase)+1);
+                        else
+                            candidateKeyPhrases.put(phrase, 1);
+                    }
+                }
+            }
+            
+            // Find the most common key phrase
+            keyPhrase = getMostCommonString(candidateKeyPhrases);
+            
+            if (keyPhrase.length() > 0)
+                keyPhrases.add(keyPhrase);
+        }
+        
+        System.out.println("Keyphrase extraction complete");
+        
+        return keyPhrases;
     }
     
     /**
@@ -213,6 +390,8 @@ public class DataProcessor implements Serializable {
                 word = matcher.group();
                 
                 if (isValidWord(word)) {
+                    word = word.replaceAll("\\.", "");
+                    
                     if (!indexMap.containsKey(word))
                         indexMap.put(word, indexMap.size());
 
@@ -224,7 +403,7 @@ public class DataProcessor implements Serializable {
             }
         }
         
-        System.out.println("Unigram and Index map complete");
+        System.out.println("Unigram and Index map build complete");
     }
     
     /**
@@ -259,9 +438,9 @@ public class DataProcessor implements Serializable {
                 word = matcher.group();
                 
                 if (isValidWord(word)) {
-                    nextWord = word;
+                    nextWord = word.replaceAll("\\.", "");
     
-                    if (prevWord.length() > 0 && nextWord.length() > 0)
+                    if (indexMap.containsKey(prevWord) && indexMap.containsKey(nextWord))
                         bigram[indexMap.get(prevWord)][indexMap.get(nextWord)]++;
                     
                     prevWord = word;
@@ -269,7 +448,7 @@ public class DataProcessor implements Serializable {
             }
         }
         
-        System.out.println("Bigram Complete");
+        System.out.println("Bigram build Complete");
     }
     
     /**
