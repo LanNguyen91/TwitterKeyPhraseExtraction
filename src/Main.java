@@ -22,11 +22,54 @@ public class Main {
 	
 	public static void main(String [] agrs)	
 	{
-	    //farmTweets("#nissan", "NissanTweets.sav", 15000);
-	    //printTweets("NissanTweets.sav");
-	    extractKeyPhrases("NissanTweets.sav", 30);
+	    /**
+	     * The farmTweets method is used to download Tweets. First it connects
+	     * to Twitter's servers and performs a search using the first parameter.
+	     * Next we take all the Tweets and put them in a List<Status>. Finally
+	     * we serialize or save the List<Status> into a file so we can later
+	     * load what we downloaded for easy use.
+	     * 
+	     * The second parameter dictates the name to give the file and the
+	     * third parameter specifies the number of Tweets to download.
+	     * 
+	     * The maximum number of Tweets allowed in a single go is about
+	     * 17985 in either 15 minutes to 1 hour (Twitter wasn't too specific).
+	     * 
+	     * Also, if you run into an exception while downloading Tweets, the
+	     * program will automatically save them up getting said exception, so
+	     * nothing is truly lost.
+	     * 
+	     * Also some topics simply won't yield high Tweet counts, such as
+	     * #calpolypomona or #gabrieliglesias for example. If they stay at the
+	     * same count for a while, terminate the program to maintain preserve
+	     * your rate limit.
+	     */
+	    //farmTweets("#food", "FoodTweets.sav", 15000);
 	    
-	    benchmark();
+	    
+	    /**
+	     * The printTweets method is simply used to print out all the Tweets
+	     * in a given list. This includes not only the poster, but the message
+	     * of the Tweet itself.
+	     * 
+	     * We pass it the name and extension of the file to load the
+	     * List<Status> object from. The .sav files are located inside the
+	     * data subdirectory.
+	     */
+	    //printTweets("FoodTweets.sav");
+	    
+	    
+	    /**
+	     * The extractKeyPhrases method, as the name implies, extracts the key.
+	     * Simply give it a list of saved Tweets in the form of a .sav file and
+	     * the number of key phrases you want to extract in the second
+	     * parameter.
+	     * 
+	     * Due to the wide variety of topics and different aspects on the topic
+	     * 20 or 30 is considered a good amount to help print not only the
+	     * noise but the more relevant key phrases as well
+	     */
+	    //extractKeyPhrases("FoodTweets.sav", 30);
 	}
 	
 	/**
@@ -85,10 +128,11 @@ public class Main {
 	 * @param fileName - Name of the file that contains the Tweets
 	 * @param count - Number of Tweets to fetch from Twitter
 	 */
-	public static void extractKeyPhrases(String fileName, int count) {
+	public static DataProcessor extractKeyPhrases(String fileName, int count) {
 	    DataProcessor dp = new DataProcessor(fileName);
         
         dp.buildUnigramAndIndexMap();
+        //dp.buildBigram();
         
         List<String> keyPhrases = dp.getKeyPhrases(count);
         
@@ -99,6 +143,8 @@ public class Main {
                 System.out.println(s);
         else
             System.out.println("ERROR: Unable to produce list of keyphrases");
+        
+        return dp;
 	}
 	
 	public static void benchmark() {
