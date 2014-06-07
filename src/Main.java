@@ -43,6 +43,12 @@ public class Main {
 	     * #calpolypomona or #gabrieliglesias for example. If they stay at the
 	     * same count for a while, terminate the program to maintain preserve
 	     * your rate limit.
+	     * 
+	     * To help keep the code repo size down, I decided to keep our farmed
+         * data files as a .zip archive on my Google Drive. To install them,
+         * simply unzip them into the data folder inside the project directory.
+         * 
+         * https://drive.google.com/file/d/0B5CMeWrOkrPYSGpxczctcnhxMlE/
 	     */
 	    //farmTweets("#food", "FoodTweets.sav", 15000);
 	    
@@ -64,6 +70,12 @@ public class Main {
 	     * Simply give it a list of saved Tweets in the form of a .sav file and
 	     * the number of key phrases you want to extract in the second
 	     * parameter.
+	     * 
+	     * To help keep the code repo size down, I decided to keep our farmed
+	     * data files as a .zip archive on my Google Drive. To install them,
+	     * simply unzip them into the data folder inside the project directory.
+	     * 
+	     * https://drive.google.com/file/d/0B5CMeWrOkrPYSGpxczctcnhxMlE/
 	     * 
 	     * Due to the wide variety of topics and different aspects on the topic
 	     * 20 or 30 is considered a good amount to help print not only the
