@@ -70,6 +70,65 @@ public class Main {
 	     * noise but the more relevant key phrases as well
 	     */
 	    //extractKeyPhrases("FoodTweets.sav", 30);
+		
+		//------------------------------------------------------------------------------//
+		/** KEA Algorithm  
+		 *  Below are instruction how to use Kea algorithm
+		 *  Uncomment or modify any line according to the topic that you like to perfom
+		 *  keyphrase extraction
+		 */
+		
+		/** First we need to farm tweet to .txt file **/
+		//farmTweetsToText("#facebook","facebook.txt",100);
+		
+		/** The block of code below will perform extraction using Kea method 
+		 *  For more usage on how to create model and train data 
+		 *  please visit: http://www.nzdl.org/Kea/
+		 */
+		
+		/*System.out.println("You will see in testdocs/en/ the file that " +
+				"contains tweet you just farm. The file is in .txt extension.");
+		KeaExtraction kea = new KeaExtraction();
+		kea.setOptionsTraining();
+		kea.createModel();
+		
+		System.out.println("Extracting keyphrases from test documents... ");
+		String directory = "testdocs/en/";
+		kea.setOptionsTesting(directory);
+		kea.extractKeyphrases();
+		System.out.println("Look into " + directory + " to see the results." +
+				"The results will be in the same file name but with .key extension ");
+		*/
+	}
+//-----------------------------------------------------------------------------------------------	
+	/**
+	 * Farms Twitters for Tweets using a given search term. The limit of
+	 * transfer is somewhere at 17980 Tweets, so we download them in 15000
+	 * Tweet batches.
+	 * 
+	 * Note: Due to Twitter rate limits, we can only download about 17980
+	 * Tweets every 15 minutes, so either wait 15 minutes, or be wary of your
+	 * download rate
+	 * 
+	 * For more information on search strings and phrases check this page:
+     *     https://dev.twitter.com/docs/using-search
+	 * 
+	 * @param searchTerm - Term to search for
+	 * @param fileName - Name and extension of the file to save to
+	 */
+	public static void farmTweetsToText(String searchTerm, String fileName,
+	                              int count) {
+	    ConfigurationBuilder cb = new ConfigurationBuilder();
+        cb.setDebugEnabled(true)
+                .setOAuthConsumerKey(CONSUMER_KEY)
+                .setOAuthConsumerSecret(CONSUMER_SECRET)
+                .setOAuthAccessToken(ACCESS_KEY)
+                .setOAuthAccessTokenSecret(ACCESS_SECRET);
+        
+	    DataIO dio = new DataIO(cb);
+        
+        dio.getTweetsBySearch(searchTerm, count);
+        dio.saveCurrentTweetsToFile(fileName);
 	}
 	
 	/**

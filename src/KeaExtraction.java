@@ -17,7 +17,7 @@ public class KeaExtraction {
 		//    documents should be in txt format with an extention "txt"
 		//    keyphrases with the same name as documents, but extension "key"
 		//    one keyphrase per line!
-		km.setDirName("testdocs/en/train");
+		km.setDirName("testdocs/en/testtrain");
 		
 		// 2. Name of the model -- give the path to where the model is to be stored and its name
 		km.setModelName("testdocs/en/model");
@@ -128,30 +128,3 @@ public class KeaExtraction {
 	}
 }
 
-
-/*cpublic class TestKea {
-
-	
-	public static void main(String[] args) {
-		
-		
-		TestKea test = new TestKea();
-		
-		// to create a model from manually indexed documents,
-		System.err.println("Creating the model... ");
-		test.setOptionsTraining();
-		test.createModel();
-		
-		// to extract keyphrases from new documents,
-		System.err.println("Extracting keyphrases from test documents... ");
-		
-		String m_testdir = "testdocs/en/test";
-		// String m_testdir = "/Users/alyona/Documents/corpora/term_assignment/FAO_30/test1";
-		
-		test.setOptionsTesting(m_testdir);
-		test.extractKeyphrases();
-		System.err.println("Look into " + m_testdir + " to see the results");
-		System.err.println("and compare them to " + m_testdir + "/manual_keyphrases/.");
-		
-	}
-}*/

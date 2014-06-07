@@ -1,7 +1,9 @@
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -31,7 +33,7 @@ public class DataIO {
     private List<Status> statusList;
     
     public static final String DATADIR = "data/";
-    
+    public static final String TRAINDATADIR = "testdocs/en/";
     // Coordinates for Los Angeles
     public static final double LA_LAT = 34.052;
     public static final double LA_LON = -118.243;
@@ -148,7 +150,7 @@ public class DataIO {
 
 	        query.setMaxId(lastID - 1);
 	    }
-
+	    System.out.println("Finish Fetching");
 		return statusList;
 	}
 	
@@ -204,6 +206,15 @@ public class DataIO {
 	 * 
 	 * @param fileName - Name of the file to save the Tweets to
 	 */
+	public void saveCurrentTweetsToFile(String fileName) {
+	    DataIO.saveTweetsToFile(statusList, fileName);
+	}
+	
+	/**
+	 * Saves the current list of Tweets (statusList) to a file
+	 * 
+	 * @param fileName - Name of the file to save the Tweets to
+	 */
 	public void saveCurrentTweets(String fileName) {
 	    DataIO.saveTweets(statusList, fileName);
 	}
@@ -215,6 +226,32 @@ public class DataIO {
 	 */
 	public void loadSavedTweets(String fileName) {
 	    statusList = DataIO.loadTweets(fileName);
+	}
+	
+	/**
+	 * Saves the given list of Tweets to a file which can then be loaded and
+	 * read by another object in the program
+	 * 
+	 * @param fileName - Name of the file to save the Tweets to
+	 */
+	public static void saveTweetsToFile(List<Status> tweetsList, String fileName) {
+	    // Ensure we always have the data folder to write files to
+	    new File(TRAINDATADIR).mkdir();
+	    
+	    try {
+	    	File result = new File(TRAINDATADIR+fileName);
+	    	FileWriter fw = new FileWriter(result);
+	    	BufferedWriter bw = new BufferedWriter(fw);
+            for(Status s : tweetsList)
+            {
+            	bw.write(s.getText());
+            	bw.write("\n");
+            }
+        } 
+        catch (IOException e) {
+            System.err.println("ERROR: Problem occured while saving file");
+            e.printStackTrace();
+        }   
 	}
 	
 	/**
@@ -236,9 +273,7 @@ public class DataIO {
         catch (IOException e) {
             System.err.println("ERROR: Problem occured while saving file");
             e.printStackTrace();
-        }
-	    
-	    
+        }   
 	}
 	
 	/**
