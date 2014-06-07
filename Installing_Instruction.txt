@@ -1,51 +1,15 @@
 Requirement: Eclipse
 
+Welcome to Group 6 NLP final project.
+This text file will guide you to the process of installing our project.
+The user manual/documentation on the code and its functionality is in the src/ folder. 
+There are no java docs because we have fully document each method carefully for user ease of use.
+
 Instruction:
-1./ Clone the project from github
-2./ Create a project from existing code and point to this project/ Or you can open this project with eclipse whichever will work
-3./ I have manually put twitter4j API in here so you don't have to download them
-	but if any problems occur please refer to here:
-	http://twitter4j.org/en/index.html
-	I am getting the builded libraries: twitter4j-4.0.2-SNAPSHOT.zip
-	In there you will need 1 libraries: twitter4j-core-4.0.2-SNAPSHOT (in lib folder)
-4./ Right click on the project on Eclipse and choose: Build Path/Add External Archieve (or external Jar/or something similiar along that line. This is different from each version of eclipse)
-5./ Choose the twitter4j-core-4.0.2-SNAPSHOT that I have attached or the download version that you prefer
-6./ The error should be gone and you can click run icon
+1./ Clone the project from github.
+2./ Open your eclipse and create a new project from existing code and point to this project directory.
+3./ Uncomment the code in Main.java to test the functionality of the project.
+4./ We have documented each function and its usage.
+5./ Feel free to read other .java files as they are all very well documented.
+6./ Kea Extraction please visit https://code.google.com/p/kea-algorithm/ for detail of their implementation. Or just uncomment the code to use its basic functionality.
 
-
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-So basically, I use my account for the sake of simplicity because it speeds up the process.
-You can replace with your credential by changing:
-	static final String ACCESS_KEY = "2163998690-28tx0JdKCJynvlL20Tkmd9TopMOGd0HpJPwxaD4";
-	static final String ACCESS_SECRET ="P2kChTQFUunhqCigQT0OjjW6AGSP1T46MYyuT6MWqWNg5";
-	static final String CONSUMER_KEY = "gJsuxchYzgRFRcPGwDNaQcwmW";
-	static final String CONSUMER_SECRET="xSAQNBycKbm8d9ZtWplZfvV6pB5QdXIR2j0dr8QDRewnCd4xJJ";
-	
-	How to look for these, please visit twitter developer site and register
-
-But you can surely keep mine just to play with dataIO
-What I did here is pulling the latest 5 tweets from my account
-So clicking run you might get an output like this or it might be updated but will be similiar:
-
-	==================Sample Output=====================
-
-Diddy:RT @RevoltTV: #REVOLTNews | DJ Khaled Grabs Jay Z, Rick Ross & Meek Mill For New Anthem http://t.co/wfbYdxGlmU
-
-slickdeals:Tt eSPORTS CONKER Cloth Gaming Mouse Pad $6 after $11 Rebate + Free Shipping http://t.co/tybd4t6PlR
-
-Diddy:I'm bringing @1future to #REVOLTLive tomorrow. #LA come turn up!!! Get your free tix here:… http://t.co/azvc5g7uso
-
-slickdeals:Men's Watches: Baume & Mercier Automatic Classima Executives Watch $818, Hamilton Men's Jazzmaster Cushion Automatic  http://t.co/R8QDkmao2e
-
-slickdeals:SanDisk Extreme Class 10 UHS-1 SDHC Memory: 64GB $49, 32GB $24 &amp; More + Free Shipping http://t.co/3mTyc0Oe6o
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-Implementation
-
-I have Main.java which hook up with twitter using my credentials
-I also have DataIO.java which will be our main class that perform data manipulation
-Later on we will have keyphrase extraction algorithm and so on, but let play around with these and make sure you understand this simple structure first. 
-Let me know if you have any questions
-
-Lan
